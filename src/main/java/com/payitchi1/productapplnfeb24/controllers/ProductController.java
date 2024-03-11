@@ -1,9 +1,14 @@
 package com.payitchi1.productapplnfeb24.controllers;
 
 import com.payitchi1.productapplnfeb24.dtos.CreateProductRequestDto;
+import com.payitchi1.productapplnfeb24.dtos.ErrorDto;
+import com.payitchi1.productapplnfeb24.exceptions.ProductNotFoundException;
 import com.payitchi1.productapplnfeb24.models.Category;
 import com.payitchi1.productapplnfeb24.models.Product;
 import com.payitchi1.productapplnfeb24.services.ProductService;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
@@ -13,20 +18,23 @@ import java.util.List;
 public class ProductController {
     private ProductService productService;
     private RestTemplate restTemplate;
-    public ProductController(ProductService productService,RestTemplate restTemplate)
+    public ProductController(@Qualifier("selfProductService") ProductService productService, RestTemplate restTemplate)
     {
         this.productService = productService;
         this.restTemplate = restTemplate;
     }
     @GetMapping("/products/{id}")
-    public Product getSingleProduct(@PathVariable("id") long productId)
-    {
+    public Product getSingleProduct(@PathVariable("id") long productId) throws ProductNotFoundException {
     return productService.getSingleProduct(productId);
     }
-    @GetMapping("/products/")
-    public List<Product> getProduct()
+    @GetMapping("/products")
+    public ResponseEntity<List<Product>> getProduct()
     {
-    return productService.getProduct();
+    List<Product> Allproducts= productService.getProduct();
+    ResponseEntity<List<Product>> response = new ResponseEntity<>
+                    (Allproducts, HttpStatus.NOT_FOUND);
+        return response;
+
     }
     @PostMapping("/products/")
     public Product createProduct(@RequestBody CreateProductRequestDto request)
@@ -54,4 +62,11 @@ public class ProductController {
     {
         return productService.updateSingleProduct(productId);
     }
+//    @ExceptionHandler(ProductNotFoundException.class)
+//    public ResponseEntity<ErrorDto> HandleProductNotFoundException(ProductNotFoundException exception)
+//    {
+//        ErrorDto errorDto = new ErrorDto();
+//        errorDto.setMessage(exception.getMessage());
+//        return new ResponseEntity<>(errorDto,HttpStatus.NOT_FOUND);
+//    }
 }

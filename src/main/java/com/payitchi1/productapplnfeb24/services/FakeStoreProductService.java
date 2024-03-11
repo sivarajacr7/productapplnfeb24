@@ -2,14 +2,17 @@ package com.payitchi1.productapplnfeb24.services;
 
 
 import com.payitchi1.productapplnfeb24.dtos.FakeStoreProductDto;
+import com.payitchi1.productapplnfeb24.exceptions.ProductNotFoundException;
 import com.payitchi1.productapplnfeb24.models.Category;
 import com.payitchi1.productapplnfeb24.models.Product;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
-@Service
+@Service("fakeStoreProductService")
 public class FakeStoreProductService implements ProductService{
     private RestTemplate restTemplate;
     public FakeStoreProductService(RestTemplate restTemplate)
@@ -17,10 +20,15 @@ public class FakeStoreProductService implements ProductService{
         this.restTemplate = restTemplate;
     }
     @Override
-    public Product getSingleProduct(long productId) {
-        FakeStoreProductDto fakeStoreProductDto = restTemplate.getForObject
+    public Product getSingleProduct(long productId) throws ProductNotFoundException {
+        ResponseEntity<FakeStoreProductDto> fakeStoreProductDtoresponse = restTemplate.getForEntity
                 ("https://fakestoreapi.com/products/"+productId, FakeStoreProductDto.class);
-        return fakeStoreProductDto.toProduct();
+        FakeStoreProductDto fakeStoreProduct = fakeStoreProductDtoresponse.getBody();
+        if(fakeStoreProduct == null)
+        {
+            throw new ProductNotFoundException("product with id"+productId +"doesnt exist");
+        }
+        return fakeStoreProduct.toProduct();
     }
 
     @Override
@@ -29,6 +37,7 @@ public class FakeStoreProductService implements ProductService{
         FakeStoreProductDto[] fakeStoreProductDtos = restTemplate.getForObject
                 ("https://fakestoreapi.com/products",FakeStoreProductDto[].class);
         List<Product> products = new ArrayList<>();
+        //throw new RuntimeException();
         for(FakeStoreProductDto fakeStoreProductDto:fakeStoreProductDtos)
         {
             products.add(fakeStoreProductDto.toProduct());
