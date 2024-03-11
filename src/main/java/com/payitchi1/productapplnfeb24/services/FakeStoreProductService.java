@@ -76,15 +76,24 @@ public class FakeStoreProductService implements ProductService{
     }
 
     @Override
-    public List<Product> getAllTheProductCategories() {
-        FakeStoreProductDto[] fakeStoreProductDtos = restTemplate.getForObject
+    public List<String> getAllCategories() {
+        /*FakeStoreProductDto[] fakeStoreProductDtos = restTemplate.getForObject
                 ("fakestoreapi.com/products/categories", FakeStoreProductDto[].class);
         List<Product> products = new ArrayList<>();
         for(FakeStoreProductDto fakeStoreProductDto :fakeStoreProductDtos)
         {
             products.add(fakeStoreProductDto.toProduct());
         }
-        return products;
+
+        return products;*/
+        String[] allcateg = restTemplate.getForObject
+                ("fakestoreapi.com/products/categories",String[].class);
+        List<String> allcategories = new ArrayList<>();
+        for(String s:allcateg)
+        {
+            allcategories.add(s);
+        }
+        return allcategories;
     }
 
     @Override
@@ -96,7 +105,8 @@ public class FakeStoreProductService implements ProductService{
     }
 
     @Override
-    public Product updateSingleProduct(long productId) {
+    public Product updateSingleProduct(long productId,String title,String description,
+                                       String image,double price,String category) {
         FakeStoreProductDto fakeStoreProductDto = restTemplate.getForObject
                 ("https://fakestoreapi.com/products/"+productId, FakeStoreProductDto.class);
         return fakeStoreProductDto.toProduct();

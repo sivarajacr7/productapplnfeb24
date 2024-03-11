@@ -48,9 +48,9 @@ public class ProductController {
         return productService.getAllProductCategory(categoryTitle);
     }
     @GetMapping("/products/categories/")
-    public List<Product> getAllProductCategories()
+    public List<String> getAllProductCategories()
     {
-        return productService.getAllTheProductCategories();
+        return productService.getAllCategories();
     }
     @DeleteMapping("/products/{deleteproduct}")
     public Product deleteProduct(@PathVariable("deleteproduct") long productId)
@@ -58,9 +58,10 @@ public class ProductController {
         return productService.deleteSingleProduct(productId);
     }
     @PutMapping("/products/{updateproduct}")
-    public Product updateProduct(@PathVariable("updateproduct") long productId)
+    public Product updateProduct(@PathVariable("updateproduct") long productId,@RequestBody CreateProductRequestDto request)
     {
-        return productService.updateSingleProduct(productId);
+        return productService.updateSingleProduct(productId,request.getTitle(), request.getDescription(),
+                request.getImage(), request.getPrice(), request.getCategory());
     }
 //    @ExceptionHandler(ProductNotFoundException.class)
 //    public ResponseEntity<ErrorDto> HandleProductNotFoundException(ProductNotFoundException exception)

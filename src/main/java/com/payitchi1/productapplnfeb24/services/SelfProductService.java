@@ -7,6 +7,7 @@ import com.payitchi1.productapplnfeb24.repositories.CategoryRepository;
 import com.payitchi1.productapplnfeb24.repositories.ProductRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service("selfProductService")
@@ -21,12 +22,14 @@ public class SelfProductService implements ProductService{
 
     @Override
     public Product getSingleProduct(long productId) throws ProductNotFoundException {
-        return null;
+        Product p = productRepository.findById(productId);
+        return p;
     }
 
     @Override
     public List<Product> getProduct() {
-        return null;
+        List<Product> p = productRepository.findAll();
+        return p;
     }
 
     @Override
@@ -39,8 +42,9 @@ public class SelfProductService implements ProductService{
         Category categoryFromDb = categoryRepository.findByTitle(category);
         if(categoryFromDb==null)
         {
-            categoryFromDb = new Category();
-            categoryFromDb.setTitle(category);
+            Category newCategory = new Category();
+            newCategory.setTitle(category);
+            categoryFromDb = newCategory;
         }
         product.setCategory(categoryFromDb);
         Product saveProduct = productRepository.save(product);
@@ -49,21 +53,46 @@ public class SelfProductService implements ProductService{
 
     @Override
     public List<Product> getAllProductCategory(String title) {
-        return null;
+        Category c = categoryRepository.findByTitle(title);
+        List<Product> p = productRepository.findAllByCategoryEquals(c);
+        return p;
     }
 
     @Override
-    public List<Product> getAllTheProductCategories() {
-        return null;
+    public List<String> getAllCategories() {
+        List<Category> c = categoryRepository.findAll();
+        List<String> allcateg = new ArrayList<>();
+        for(Category c1:c)
+        {
+            allcateg.add(c1.getTitle());
+        }
+        return allcateg;
     }
 
     @Override
     public Product deleteSingleProduct(long productId) {
-        return null;
+
+        Product p = productRepository.deleteById(productId);
+        return p;
     }
 
     @Override
-    public Product updateSingleProduct(long productId) {
-        return null;
+    public Product updateSingleProduct(long productId,String title,String description,
+                                       String image,double price,String category) {
+        Product product = productRepository.findById(productId);
+        product.setDescription(description);
+        product.setTitle(title);
+        product.setImageUrl(image);
+        product.setPrice(price);
+        Category categoryFromDb = categoryRepository.findByTitle(category);
+        if(categoryFromDb==null)
+        {
+            Category newCategory = new Category();
+            newCategory.setTitle(category);
+            categoryFromDb = newCategory;
+        }
+        product.setCategory(categoryFromDb);
+        Product saveProduct = productRepository.save(product);
+        return saveProduct;
     }
 }
